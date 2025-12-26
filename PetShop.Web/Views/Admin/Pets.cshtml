@@ -1,0 +1,97 @@
+@model IEnumerable<PetShop.Models.Pet>
+
+@{
+    ViewData["Title"] = "Quản lý thú cưng";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4><i class="fas fa-paw"></i> Quản lý thú cưng</h4>
+    <a href="/Admin/CreatePet" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Thêm mới
+    </a>
+</div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Hình ảnh</th>
+                            <th>Tên</th>
+                            <th>Danh mục</th>
+                            <th>Giống</th>
+                            <th>Giá</th>
+                            <th>Tồn kho</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var pet in Model)
+                        {
+                            <tr>
+                                <td>@pet.PetId</td>
+                                <td>
+                                    @{
+                                        var defaultImage = pet.PetImages?.FirstOrDefault(img => img.IsDefault)?.ImageUrl 
+                                                        ?? pet.PetImages?.FirstOrDefault()?.ImageUrl 
+                                                        ?? pet.ImageUrl;
+                                        var imageCount = pet.PetImages?.Count ?? 0;
+                                    }
+                                    <div class="position-relative d-inline-block">
+                                        <img src="@(string.IsNullOrEmpty(defaultImage) ? "https://via.placeholder.com/50" : defaultImage)" 
+                                             style="width: 50px; height: 50px; object-fit: cover;" class="rounded">
+                                        @if (imageCount > 1)
+                                        {
+                                            <span class="badge bg-primary position-absolute bottom-0 end-0" style="font-size: 0.6rem;">+@(imageCount - 1)</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td><strong>@pet.PetName</strong></td>
+                                <td>@pet.Category?.CategoryName</td>
+                                <td>@pet.Breed</td>
+                                <td class="text-danger">@pet.Price.ToString("N0") đ</td>
+                                <td>@pet.StockQuantity</td>
+                                <td>
+                                    @if (pet.IsAvailable)
+                                    {
+                                        <span class="badge bg-success">Có sẵn</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Hết hàng</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a href="/Admin/EditPet/@pet.PetId" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button onclick="deletePet(@pet.PetId)" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+@section Scripts {
+<script>
+    function deletePet(petId) {
+        if (confirm('Bạn có chắc muốn xóa thú cưng này?')) {
+            $.post('/Admin/DeletePet', { id: petId }, function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert('Có lỗi xảy ra!');
+                }
+            });
+        }
+    }
+</script>
+}

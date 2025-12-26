@@ -1,0 +1,111 @@
+@model IEnumerable<PetShop.Models.Order>
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<!-- Statistics Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card blue">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1 opacity-75">Thú cưng</h6>
+                    <h2 class="mb-0">@ViewBag.TotalPets</h2>
+                    <small class="opacity-75">Tổng số sản phẩm</small>
+                </div>
+                <i class="fas fa-paw fa-3x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card green">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1 opacity-75">Đơn hàng</h6>
+                    <h2 class="mb-0">@ViewBag.TotalOrders</h2>
+                    <small class="opacity-75">Tổng đơn đặt hàng</small>
+                </div>
+                <i class="fas fa-shopping-cart fa-3x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card orange">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1 opacity-75">Khách hàng</h6>
+                    <h2 class="mb-0">@ViewBag.TotalUsers</h2>
+                    <small class="opacity-75">Người dùng đăng ký</small>
+                </div>
+                <i class="fas fa-users fa-3x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card red">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1 opacity-75">Doanh thu</h6>
+                    <h2 class="mb-0">@ViewBag.TotalRevenue.ToString("N0")</h2>
+                    <small class="opacity-75">VNĐ</small>
+                </div>
+                <i class="fas fa-coins fa-3x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Orders -->
+<div class="card">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-shopping-cart"></i> Đơn hàng gần đây</h5>
+        <div>
+            <span class="badge badge-pending me-2">@ViewBag.PendingOrders chờ xử lý</span>
+            <a href="/Admin/Orders" class="btn btn-sm btn-primary">Xem tất cả</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Mã ĐH</th>
+                        <th>Khách hàng</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                            <td><strong>#@order.OrderId</strong></td>
+                            <td>
+                                <i class="fas fa-user-circle text-muted"></i>
+                                @order.User?.FullName
+                            </td>
+                            <td><small>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</small></td>
+                            <td><strong class="text-danger">@order.TotalAmount.ToString("N0") đ</strong></td>
+                            <td>
+                                <span class="badge badge-@order.Status.ToLower()">
+                                    @(order.Status == "Pending" ? "Chờ xác nhận" : 
+                                      order.Status == "Confirmed" ? "Đã xác nhận" : 
+                                      order.Status == "Shipping" ? "Đang giao" : 
+                                      order.Status == "Completed" ? "Hoàn thành" : "Đã hủy")
+                                </span>
+                            </td>
+                            <td>
+                                <a href="/Admin/OrderDetail/@order.OrderId" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i> Chi tiết
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

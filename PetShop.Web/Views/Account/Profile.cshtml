@@ -1,0 +1,103 @@
+@model PetShop.Models.User
+
+@{
+    ViewData["Title"] = "Thông tin tài khoản";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-user-circle"></i> Thông tin tài khoản</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <strong><i class="fas fa-id-badge text-primary"></i> Họ tên:</strong>
+                        </div>
+                        <div class="col-md-9">
+                            @Model.FullName
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <strong><i class="fas fa-envelope text-primary"></i> Email:</strong>
+                        </div>
+                        <div class="col-md-9">
+                            @Model.Email
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <strong><i class="fas fa-phone text-primary"></i> Số điện thoại:</strong>
+                        </div>
+                        <div class="col-md-9">
+                            @(Model.Phone ?? "Chưa cập nhật")
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <strong><i class="fas fa-map-marker-alt text-primary"></i> Địa chỉ:</strong>
+                        </div>
+                        <div class="col-md-9">
+                            @(Model.Address ?? "Chưa cập nhật")
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <strong><i class="fas fa-user-tag text-primary"></i> Vai trò:</strong>
+                        </div>
+                        <div class="col-md-9">
+                            @if (Model.Role == "Admin")
+                            {
+                                <span class="badge bg-danger">Quản trị viên</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Khách hàng</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <strong><i class="fas fa-circle text-primary"></i> Trạng thái:</strong>
+                        </div>
+                        <div class="col-md-9">
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">Đang hoạt động</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Đã khóa</span>
+                            }
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex gap-2">
+                        <a href="@Url.Action("ChangePassword", "Account")" class="btn btn-warning">
+                            <i class="fas fa-key"></i> Đổi mật khẩu
+                        </a>
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">
+                            <i class="fas fa-home"></i> Trang chủ
+                        </a>
+                        @if (Model.Role == "Admin")
+                        {
+                            <a href="@Url.Action("Dashboard", "Admin")" class="btn btn-primary">
+                                <i class="fas fa-tachometer-alt"></i> Quản trị
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

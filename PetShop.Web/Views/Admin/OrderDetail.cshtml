@@ -1,0 +1,325 @@
+@model PetShop.Models.Order
+
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng #" + Model.OrderId;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4><i class="fas fa-file-invoice"></i> Chi tiết đơn hàng #@Model.OrderId</h4>
+    <a href="/Admin/Orders" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+</div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Thông tin đơn hàng</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Mã đơn hàng:</strong> #@Model.OrderId
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Ngày đặt:</strong> @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Khách hàng:</strong> @Model.User?.FullName
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Email:</strong> @Model.User?.Email
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Số điện thoại:</strong> @Model.Phone
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Trạng thái:</strong>
+                            <span class="badge bg-@(Model.Status == "Completed" ? "success" : Model.Status == "Pending" ? "warning" : "secondary")">
+                                @Model.Status
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <strong>Địa chỉ giao hàng:</strong><br />
+                            @Model.ShippingAddress
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Note))
+                    {
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <strong>Ghi chú:</strong><br />
+                                @Model.Note
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5>Chi tiết sản phẩm</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Đơn giá</th>
+                                <th>Số lượng</th>
+                                <th>Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OrderDetails ?? new List<OrderDetail>())
+                            {
+                                <tr>
+                                    <td>@item.Pet?.PetName</td>
+                                    <td>@item.UnitPrice.ToString("N0") đ</td>
+                                    <td>@item.Quantity</td>
+                                    <td>@item.TotalPrice.ToString("N0") đ</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
+                                <td><strong class="text-danger">@Model.TotalAmount.ToString("N0") đ</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Cập nhật trạng thái</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Trạng thái hiện tại</label>
+                        <div class="alert alert-info text-center">
+                            <h5 class="mb-0">
+                                <span class="badge bg-@(Model.Status == "Completed" ? "success" : Model.Status == "Pending" ? "warning" : Model.Status == "Confirmed" ? "info" : Model.Status == "Shipping" ? "primary" : "secondary") fs-6">
+                                    @(Model.Status == "Pending" ? "Chờ xác nhận" : Model.Status == "Confirmed" ? "Đã xác nhận" : Model.Status == "Shipping" ? "Đang giao" : Model.Status == "Completed" ? "Hoàn thành" : "Đã hủy")
+                                </span>
+                            </h5>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Chuyển trạng thái</label>
+                        <div class="d-grid gap-2">
+                            @if (Model.Status == "Pending")
+                            {
+                                <button onclick="updateStatus('Confirmed')" class="btn btn-info">
+                                    <i class="fas fa-check-circle"></i> Xác nhận đơn hàng
+                                </button>
+                                <button onclick="updateStatus('Cancelled')" class="btn btn-danger">
+                                    <i class="fas fa-times-circle"></i> Hủy đơn hàng
+                                </button>
+                            }
+                            else if (Model.Status == "Confirmed")
+                            {
+                                <button onclick="updateStatus('Shipping')" class="btn btn-primary">
+                                    <i class="fas fa-shipping-fast"></i> Bắt đầu giao hàng
+                                </button>
+                                <button onclick="updateStatus('Cancelled')" class="btn btn-danger">
+                                    <i class="fas fa-times-circle"></i> Hủy đơn hàng
+                                </button>
+                            }
+                            else if (Model.Status == "Shipping")
+                            {
+                                <button onclick="updateStatus('Completed')" class="btn btn-success">
+                                    <i class="fas fa-check-double"></i> Hoàn thành đơn hàng
+                                </button>
+                                <button onclick="updateStatus('Confirmed')" class="btn btn-warning">
+                                    <i class="fas fa-undo"></i> Quay lại xác nhận
+                                </button>
+                            }
+                            else if (Model.Status == "Completed")
+                            {
+                                <div class="alert alert-success text-center mb-0">
+                                    <i class="fas fa-check-circle"></i> Đơn hàng đã hoàn thành
+                                </div>
+                            }
+                            else if (Model.Status == "Cancelled")
+                            {
+                                <div class="alert alert-secondary text-center mb-0">
+                                    <i class="fas fa-ban"></i> Đơn hàng đã bị hủy
+                                </div>
+                                <button onclick="updateStatus('Pending')" class="btn btn-warning">
+                                    <i class="fas fa-redo"></i> Khôi phục đơn hàng
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.Payment != null)
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Thông tin thanh toán</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <strong>Phương thức:</strong>
+                            @if (Model.Payment.PaymentMethod == "COD")
+                            {
+                                <span class="badge bg-secondary">COD</span>
+                            }
+                            else if (Model.Payment.PaymentMethod == "Bank Transfer")
+                            {
+                                <span class="badge bg-info">Chuyển khoản</span>
+                            }
+                            else if (Model.Payment.PaymentMethod == "MoMo")
+                            {
+                                <span class="badge bg-danger">MoMo</span>
+                            }
+                            else if (Model.Payment.PaymentMethod == "ZaloPay")
+                            {
+                                <span class="badge bg-primary">ZaloPay</span>
+                            }
+                            else if (Model.Payment.PaymentMethod == "VNPay")
+                            {
+                                <span class="badge bg-warning">VNPay</span>
+                            }
+                        </div>
+                        <p><strong>Số tiền:</strong> <span class="text-danger">@Model.Payment.Amount.ToString("N0") đ</span></p>
+                        <div class="mb-2">
+                            <strong>Trạng thái:</strong> 
+                            <span class="badge bg-@(Model.Payment.Status == "Completed" ? "success" : Model.Payment.Status == "Failed" ? "danger" : "warning")">
+                                @(Model.Payment.Status == "Completed" ? "Đã thanh toán" : Model.Payment.Status == "Failed" ? "Thất bại" : "Chờ thanh toán")
+                            </span>
+                        </div>
+                        <p><strong>Ngày:</strong> @Model.Payment.PaymentDate.ToString("dd/MM/yyyy HH:mm")</p>
+                        @if (!string.IsNullOrEmpty(Model.Payment.TransactionId))
+                        {
+                            <p><strong>Mã GD:</strong> <code>@Model.Payment.TransactionId</code></p>
+                        }
+                        
+                        @if (Model.Payment.Status == "Pending" && Model.Payment.PaymentMethod != "COD")
+                        {
+                            <hr>
+                            <small class="text-muted"><i class="fas fa-info-circle"></i> Chỉ xác nhận sau khi kiểm tra thanh toán</small>
+                            <div class="d-grid gap-2 mt-2">
+                                <button onclick="confirmPayment('Completed')" class="btn btn-success btn-sm">
+                                    <i class="fas fa-check-circle"></i> Xác nhận đã thanh toán
+                                </button>
+                                <button onclick="confirmPayment('Failed')" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-times-circle"></i> Thanh toán thất bại
+                                </button>
+                            </div>
+                        }
+                        @if (Model.Payment.Status == "Pending" && Model.Payment.PaymentMethod == "COD")
+                        {
+                            <hr>
+                            <div class="alert alert-warning mb-0">
+                                <i class="fas fa-info-circle"></i> COD sẽ tự động chuyển sang "Đã thanh toán" khi đơn hàng hoàn thành
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function updateStatus(status) {
+            const statusText = {
+                'Confirmed': 'xác nhận',
+                'Shipping': 'chuyển sang giao hàng',
+                'Completed': 'hoàn thành',
+                'Cancelled': 'hủy',
+                'Pending': 'khôi phục'
+            };
+            
+            const message = `Bạn có chắc muốn ${statusText[status]} đơn hàng này không?`;
+            
+            if (confirm(message)) {
+                // Show loading
+                event.target.disabled = true;
+                event.target.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+                
+                fetch('/Admin/UpdateOrderStatus', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        orderId: @Model.OrderId,
+                        status: status
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Cập nhật trạng thái thành công!');
+                        location.reload();
+                    } else {
+                        alert('Có lỗi xảy ra: ' + (data.message || 'Vui lòng thử lại'));
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    alert('Có lỗi xảy ra: ' + error.message);
+                    location.reload();
+                });
+            }
+        }
+
+        function confirmPayment(status) {
+            const statusText = {
+                'Completed': 'xác nhận đã thanh toán',
+                'Failed': 'đánh dấu thanh toán thất bại'
+            };
+            
+            const message = `Bạn có chắc muốn ${statusText[status]} cho đơn hàng này không?`;
+            
+            if (confirm(message)) {
+                event.target.disabled = true;
+                event.target.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+                
+                fetch('/Admin/ConfirmPayment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        paymentId: @(Model.Payment?.PaymentId ?? 0),
+                        status: status,
+                        transactionId: null
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Cập nhật thanh toán thành công!');
+                        location.reload();
+                    } else {
+                        alert('Có lỗi xảy ra: ' + (data.message || 'Vui lòng thử lại'));
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    alert('Có lỗi xảy ra: ' + error.message);
+                    location.reload();
+                });
+            }
+        }
+    </script>
+}
+

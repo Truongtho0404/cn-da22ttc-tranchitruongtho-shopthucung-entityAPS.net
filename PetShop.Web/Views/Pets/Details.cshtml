@@ -1,0 +1,170 @@
+@model PetShop.Models.Pet
+
+@{
+    ViewData["Title"] = Model.PetName;
+}
+
+<div class="container-fluid" style="max-height: 100vh; overflow: hidden;">
+    <nav aria-label="breadcrumb" class="py-2">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="/Pets">Thú cưng</a></li>
+            <li class="breadcrumb-item active">@Model.PetName</li>
+        </ol>
+    </nav>
+
+    <div class="row g-3" style="height: calc(100vh - 120px);">
+        <div class="col-md-5">
+            @{
+                var allImages = new List<string>();
+                if (Model.PetImages != null && Model.PetImages.Any())
+                {
+                    allImages = Model.PetImages.OrderByDescending(x => x.IsDefault).Select(x => x.ImageUrl).ToList();
+                }
+                else if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    allImages.Add(Model.ImageUrl);
+                }
+                
+                var mainImage = allImages.FirstOrDefault() ?? $"https://via.placeholder.com/500?text={Model.PetName}";
+            }
+            
+            <!-- Image Carousel -->
+            <div style="height: 100%; position: relative; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center; border-radius: 0.375rem; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);">
+                <img src="@mainImage" id="mainImage" class="rounded" alt="@Model.PetName" 
+                     style="width: 400px; height: 600px; object-fit: contain;">
+                
+                @if (allImages.Count > 1)
+                {
+                    <!-- Previous Button -->
+                    <button onclick="changeImage(-1)" class="btn btn-dark" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); opacity: 0.7; border-radius: 50%; width: 45px; height: 45px; padding: 0;">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    
+                    <!-- Next Button -->
+                    <button onclick="changeImage(1)" class="btn btn-dark" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); opacity: 0.7; border-radius: 50%; width: 45px; height: 45px; padding: 0;">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    
+                    <!-- Image Counter -->
+                    <div style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background-color: rgba(0,0,0,0.6); color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px;">
+                        <span id="currentImageIndex">1</span> / @allImages.Count
+                    </div>
+                    
+                    <!-- Hidden images data -->
+                    <div id="allImagesData" style="display: none;">@string.Join("|", allImages)</div>
+                }
+            </div>
+        </div>
+        <div class="col-md-7" style="overflow-y: auto; max-height: 100%;">
+            <span class="badge badge-custom mb-2">@Model.Category?.CategoryName</span>
+            <h2 class="mb-2">@Model.PetName</h2>
+            
+            <div class="mb-3">
+                <span class="h3 text-danger fw-bold">@Model.Price.ToString("N0") đ</span>
+            </div>
+
+            <table class="table table-borderless table-sm">
+                <tr>
+                    <td style="width: 120px;"><i class="fas fa-dog text-primary"></i> Giống:</td>
+                    <td><strong>@Model.Breed</strong></td>
+                </tr>
+                <tr>
+                    <td><i class="fas fa-birthday-cake text-primary"></i> Tuổi:</td>
+                    <td><strong>@Model.Age tháng</strong></td>
+                </tr>
+                <tr>
+                    <td><i class="fas fa-venus-mars text-primary"></i> Giới tính:</td>
+                    <td><strong>@Model.Gender</strong></td>
+                </tr>
+                <tr>
+                    <td><i class="fas fa-box text-primary"></i> Tồn kho:</td>
+                    <td>
+                        @if (Model.StockQuantity > 0)
+                        {
+                            <span class="badge bg-success">Còn @Model.StockQuantity con</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Hết hàng</span>
+                        }
+                    </td>
+                </tr>
+            </table>
+
+            @if (Model.StockQuantity > 0)
+            {
+                <div class="d-grid gap-2 mb-3">
+                    <button onclick="addToCart(@Model.PetId)" class="btn btn-primary btn-lg">
+                        <i class="fas fa-cart-plus"></i> Thêm vào giỏ hàng
+                    </button>
+                </div>
+            }
+
+            <hr>
+
+            <h6><i class="fas fa-info-circle"></i> Mô tả</h6>
+            <p class="text-muted small">@Model.Description</p>
+
+            <div class="alert alert-info py-2">
+                <small>
+                    <i class="fas fa-shield-alt"></i> <strong>Đảm bảo:</strong>
+                    Thú cưng khỏe mạnh đã tiêm phòng đầy đủ • Giấy tờ nguồn gốc rõ ràng • Tư vấn chăm sóc miễn phí • Đổi trả trong 7 ngày
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    let currentIndex = 0;
+    let images = [];
+
+    function addToCart(petId) {
+        $.post('/Cart/AddToCart', { petId: petId, quantity: 1 }, function(response) {
+            if (response.success) {
+                if (confirm(response.message + '\nBạn có muốn xem giỏ hàng không?')) {
+                    window.location.href = '/Cart';
+                }
+            } else {
+                if (confirm(response.message + '\nBạn có muốn đăng nhập không?')) {
+                    window.location.href = '/Account/Login';
+                }
+            }
+        });
+    }
+
+    function changeImage(direction) {
+        currentIndex += direction;
+        
+        if (currentIndex < 0) {
+            currentIndex = images.length - 1;
+        } else if (currentIndex >= images.length) {
+            currentIndex = 0;
+        }
+        
+        document.getElementById('mainImage').src = images[currentIndex];
+        document.getElementById('currentImageIndex').textContent = currentIndex + 1;
+    }
+
+    // Initialize carousel
+    document.addEventListener('DOMContentLoaded', function() {
+        const imagesData = document.getElementById('allImagesData');
+        if (imagesData) {
+            images = imagesData.textContent.split('|').filter(img => img.trim() !== '');
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (images.length > 1) {
+                if (e.key === 'ArrowLeft') {
+                    changeImage(-1);
+                } else if (e.key === 'ArrowRight') {
+                    changeImage(1);
+                }
+            }
+        });
+    });
+</script>
+}

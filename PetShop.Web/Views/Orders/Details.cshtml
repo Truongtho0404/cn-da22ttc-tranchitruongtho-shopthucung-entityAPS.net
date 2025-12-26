@@ -1,0 +1,139 @@
+@model PetShop.Models.Order
+
+@{
+    ViewData["Title"] = $"Đơn hàng #{Model.OrderId}";
+    var statusClass = Model.Status switch
+    {
+        "Pending" => "warning",
+        "Confirmed" => "info",
+        "Shipping" => "primary",
+        "Completed" => "success",
+        "Cancelled" => "danger",
+        _ => "secondary"
+    };
+
+    var statusText = Model.Status switch
+    {
+        "Pending" => "Chờ xác nhận",
+        "Confirmed" => "Đã xác nhận",
+        "Shipping" => "Đang giao",
+        "Completed" => "Hoàn thành",
+        "Cancelled" => "Đã hủy",
+        _ => Model.Status
+    };
+}
+
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2><i class="fas fa-box"></i> Đơn hàng #@Model.OrderId</h2>
+        </div>
+        <div class="col-md-6 text-end">
+            <span class="badge bg-@statusClass fs-6">@statusText</span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Chi tiết sản phẩm</h5>
+                </div>
+                <div class="card-body">
+                    @foreach (var detail in Model.OrderDetails)
+                    {
+                        <div class="row mb-3 pb-3 border-bottom">
+                            <div class="col-md-2">
+                                <img src="@(string.IsNullOrEmpty(detail.Pet!.ImageUrl) ? "https://via.placeholder.com/80" : detail.Pet.ImageUrl)" 
+                                     class="img-fluid rounded">
+                            </div>
+                            <div class="col-md-6">
+                                <h6>@detail.Pet.PetName</h6>
+                                <p class="text-muted mb-0">@detail.Pet.Breed</p>
+                                <small class="text-muted">Đơn giá: @detail.UnitPrice.ToString("N0") đ</small>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <p class="mb-0">Số lượng</p>
+                                <strong>@detail.Quantity</strong>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <p class="mb-0">Thành tiền</p>
+                                <strong class="text-danger">@detail.TotalPrice.ToString("N0") đ</strong>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-md-8 text-end">
+                            <strong>Tổng cộng:</strong>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <strong class="text-danger h4">@Model.TotalAmount.ToString("N0") đ</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Thông tin giao hàng</h5>
+                </div>
+                <div class="card-body">
+                    <p>
+                        <strong><i class="fas fa-user"></i> Người nhận:</strong><br>
+                        @Model.User?.FullName
+                    </p>
+                    <p>
+                        <strong><i class="fas fa-phone"></i> Điện thoại:</strong><br>
+                        @Model.Phone
+                    </p>
+                    <p>
+                        <strong><i class="fas fa-map-marker-alt"></i> Địa chỉ:</strong><br>
+                        @Model.ShippingAddress
+                    </p>
+                    @if (!string.IsNullOrEmpty(Model.Note))
+                    {
+                        <p>
+                            <strong><i class="fas fa-sticky-note"></i> Ghi chú:</strong><br>
+                            @Model.Note
+                        </p>
+                    }
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Thanh toán</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Payment != null)
+                    {
+                        <p>
+                            <strong>Phương thức:</strong><br>
+                            @Model.Payment.PaymentMethod
+                        </p>
+                        <p>
+                            <strong>Trạng thái:</strong><br>
+                            <span class="badge bg-@(Model.Payment.Status == "Completed" ? "success" : "warning")">
+                                @Model.Payment.Status
+                            </span>
+                        </p>
+                        <p>
+                            <strong>Tổng tiền:</strong><br>
+                            <span class="text-danger h5">@Model.Payment.Amount.ToString("N0") đ</span>
+                        </p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="/Orders" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+</div>

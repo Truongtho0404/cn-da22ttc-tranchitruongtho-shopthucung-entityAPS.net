@@ -1,0 +1,131 @@
+@{
+    ViewData["Title"] = "Thêm thú cưng";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4><i class="fas fa-plus"></i> Thêm thú cưng mới</h4>
+    <a href="/Admin/Pets" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" asp-action="CreatePet" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tên thú cưng</label>
+                                <input type="text" name="PetName" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Danh mục</label>
+                                <select name="CategoryId" class="form-select" required>
+                                    @foreach (var category in ViewBag.Categories)
+                                    {
+                                        <option value="@category.CategoryId">@category.CategoryName</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Giống</label>
+                                <input type="text" name="Breed" class="form-control">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Tuổi (tháng)</label>
+                                <input type="number" name="Age" class="form-control" value="1" min="1">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Giới tính</label>
+                                <select name="Gender" class="form-select">
+                                    <option value="Đực">Đực</option>
+                                    <option value="Cái">Cái</option>
+                                    <option value="Không xác định">Không xác định</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Giá (VNĐ)</label>
+                                <input type="number" name="Price" class="form-control" required min="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Số lượng tồn kho</label>
+                                <input type="number" name="StockQuantity" class="form-control" required min="0">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Hình ảnh (có thể chọn nhiều ảnh)</label>
+                            <input type="file" name="imageFiles" class="form-control" accept="image/*" id="imageFiles" onchange="previewImages(event)" multiple>
+                            <small class="text-muted d-block">Giữ <kbd>Ctrl</kbd> (Windows) hoặc <kbd>Cmd</kbd> (Mac) để chọn nhiều ảnh</small>
+                            <small class="text-muted d-block">Chọn JPG, PNG hoặc GIF (tối đa 5MB mỗi ảnh). Ảnh đầu tiên là ảnh mặc định.</small>
+                            <div class="mt-3 row g-2" id="imagePreviews"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mô tả</label>
+                            <textarea name="Description" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" name="IsAvailable" class="form-check-input" checked>
+                            <label class="form-check-label">Có sẵn để bán</label>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Lưu thú cưng
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @section Scripts {
+            <script>
+                function previewImages(event) {
+                    const files = event.target.files;
+                    const previewContainer = document.getElementById('imagePreviews');
+                    previewContainer.innerHTML = '';
+
+                    console.log('Files selected:', files.length);
+
+                    if (files.length === 0) {
+                        previewContainer.innerHTML = '<div class="col-12 alert alert-warning">Chưa chọn ảnh nào</div>';
+                        return;
+                    }
+
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                const col = document.createElement('div');
+                                col.className = 'col-md-3';
+                                
+                                const imgContainer = document.createElement('div');
+                                imgContainer.className = 'position-relative';
+                                
+                                const img = document.createElement('img');
+                                img.src = e.target.result;
+                                img.className = 'img-thumbnail';
+                                img.style.width = '100%';
+                                img.style.height = '150px';
+                                img.style.objectFit = 'cover';
+                                
+                                if (i === 0) {
+                                    const badge = document.createElement('span');
+                                    badge.className = 'badge bg-primary position-absolute top-0 start-0 m-1';
+                                    badge.textContent = 'Ảnh mặc định';
+                                    imgContainer.appendChild(badge);
+                                }
+                                
+                                imgContainer.appendChild(img);
+                                col.appendChild(imgContainer);
+                                previewContainer.appendChild(col);
+                            }
+                            reader.readAsDataURL(file);
+                        }
+                    }
+                }
+            </script>
+            }

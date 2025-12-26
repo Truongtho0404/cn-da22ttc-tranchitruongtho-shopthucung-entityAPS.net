@@ -1,0 +1,101 @@
+@model PetShop.Models.Cart
+
+@{
+    ViewData["Title"] = "Thanh toán";
+    var total = Model.CartItems.Sum(ci => ci.Pet!.Price * ci.Quantity);
+}
+
+<div class="container my-5">
+    <h2 class="mb-4"><i class="fas fa-credit-card"></i> Thanh toán</h2>
+
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Thông tin giao hàng</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-controller="Orders" asp-action="PlaceOrder">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label class="form-label">Họ tên</label>
+                            <input type="text" class="form-control" value="@ViewBag.User.FullName" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="tel" name="phone" class="form-control" value="@ViewBag.User.Phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Địa chỉ giao hàng</label>
+                            <textarea name="shippingAddress" class="form-control" rows="3" required>@ViewBag.User.Address</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ghi chú</label>
+                            <textarea name="note" class="form-control" rows="2" 
+                                      placeholder="Ghi chú thêm về đơn hàng (không bắt buộc)"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phương thức thanh toán</label>
+                            <select name="paymentMethod" id="paymentMethod" class="form-select" required onchange="updatePaymentInfo()">
+                                <option value="COD">Thanh toán khi nhận hàng (COD)</option>
+                                <option value="Bank Transfer">Chuyển khoản ngân hàng</option>
+                                <option value="MoMo">Ví MoMo</option>
+                                <option value="ZaloPay">ZaloPay</option>
+                                <option value="VNPay">VNPay</option>
+                            </select>
+                        </div>
+                        <div id="paymentInfo" class="mb-3" style="display:none;">
+                            <div class="alert alert-info">
+                                <div id="paymentDetails"></div>
+                            </div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-check"></i> Xác nhận đặt hàng
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Đơn hàng của bạn</h5>
+                </div>
+                <div class="card-body">
+                    @foreach (var item in Model.CartItems)
+                    {
+                        <div class="d-flex mb-3">
+                            <img src="@(string.IsNullOrEmpty(item.Pet!.ImageUrl) ? "https://via.placeholder.com/60" : item.Pet.ImageUrl)" 
+                                 class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;" alt="@item.Pet.PetName">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">@item.Pet.PetName</h6>
+                                <small class="text-muted">@item.Pet.Breed</small>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <span>SL: @item.Quantity</span>
+                                    <span class="text-danger">@((item.Pet.Price * item.Quantity).ToString("N0")) đ</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <hr>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tạm tính:</span>
+                        <span>@total.ToString("N0") đ</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Phí vận chuyển:</span>
+                        <span class="text-success">Miễn phí</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <strong>Tổng cộng:</strong>
+                        <strong class="text-danger h4">@total.ToString("N0") đ</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

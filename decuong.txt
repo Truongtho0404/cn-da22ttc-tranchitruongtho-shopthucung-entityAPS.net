@@ -1,0 +1,92 @@
+TRƯỜNG KỸ THUẬT VÀ CÔNG NGHỆ
+KHOA CÔNG NGHỆ THÔNG TIN
+
+ĐỀ CƯƠNG CHI TIẾT
+THỰC TẬP ĐỒ ÁN CHUYÊN NGÀNH 
+Tên đề tài: Ứng dụng Entity Framework xây dựng hệ thống bán thú cưng
+Giảng viên hướng dẫn: Trịnh Quốc Việt
+Thời gian thực hiện: từ ngày 3/11/2025 đến ngày 29/12/2025
+Sinh viên thực hiện: Trần Chí Trường Thọ 
+Mã số sinh viên: 110122170 - Mã lớp: DA22TTC
+Nội dung đề tài:
+1.	Mô tả đề tài:
+-	Đề tài “Ứng dụng Entity Framework xây dựng hệ thống bán thú cưng” nhằm phát triển một nền tảng website hỗ trợ người dùng có thể mua bán, tìm hiểu và quản lý các sản phẩm thú cưng (chó, mèo, chim, cá, phụ kiện, thức ăn,...). 
+-	Hệ thống được xây dựng dựa trên mô hình MVC trong ASP.NET Core, sử dụng Entity Framework để quản lý dữ liệu, giúp thao tác với cơ sở dữ liệu nhanh, an toàn và hiệu quả.
+Các chức năng chính:
+Đối với Quản trị viên (Admin):
+-	Quản lý danh mục thú cưng: thêm, sửa, xoá, cập nhật thông tin.
+-	Quản lý người dùng: xem, chặn, hoặc phân quyền tài khoản.
+-	Quản lý đơn hàng: theo dõi trạng thái, xác nhận, huỷ hoặc hoàn tất giao dịch.
+-	Quản lý kho hàng và doanh thu: thống kê số lượng thú cưng còn hàng, tổng   doanh thu, số đơn hàng.
+Đối với Người dùng:
+-	Đăng ký / Đăng nhập tài khoản cá nhân.
+-	Tìm kiếm thú cưng theo loại, giá,.
+-	Xem chi tiết sản phẩm, thêm vào giỏ hàng và đặt mua.
+-	Quản lý đơn hàng: xem lịch sử mua hàng, theo dõi trạng thái giao hàng.
+-	Nhận thông báo và phản hồi với quản trị viên.
+2.	Phương pháp thực hiện:
+a.	Phương pháp nghiên cứu lý thuyết:
+-	Tìm hiểu mô hình MVC, kiến trúc 3 lớp và cách sử dụng Entity Framework (Code First, Database First, Migration)
+-	Nghiên cứu giao diện ASP.NET Razor Page, HTML, CSS, Bootstrap.
+-	Tìm hiểu Docker và cách triển khai ứng dụng ASP.NET Core + SQL Sever trên container.
+b.	Phương pháp thực nghiệm:
+-	Phân tích yêu cầu hệ thống, xác định các thực thể và mối quan hệ (ERD)
+-	Thiết kế cơ sở dữ liệu (CSDL) với cấu trúc các bảng: Thông tin người dùng, phân loại thú cưng, thông tin đơn hàng, chi tiết đơn hàng, giỏ hàng, thanh toán 
+-	Xây dựng các mô hình thực thể với Entity Framework, sử dụng Code First và Migration.
+-	Xây dựng và kiểm thử các chức năng CRUD cho từng module.
+-	Cấu hình Dockerfile và docker-compose để triển khai ứng dụng và SQL Sever trong container.
+-	Tối ưu truy vấn LINQ, xử lý logic nghiệp vụ và hiển thị dữ liệu động.
+3.	Kết quả dự kiến đạt được: 
+-	Xây dựng hoàn chỉnh website bán thú cưng với đầy đủ chức năng cơ bản. 
+-	CSDL quản lý hiệu quả bằng Entity Framework, hỗ trợ truy vấn và cập nhật dữ liệu nhanh chóng. 
+-	Giao diện thân thiện, dễ sử dụng trên cả desktop và mobile. 
+-	Báo cáo và slide thuyết trình hoàn chỉnh.
+4.	Kế hoạch thực hiện: 
+Tuần	Thời gian	Nội dung công việc	Kết quả dự kiến
+
+
+1	Từ 03/11/2025 đến 09/11/2025	Tìm hiểu ASP.NET Core, Entity Framework.
+Phân tích yêu cầu hệ thống, thiết kế sơ đồ Use Case và ERD.	- Hiểu rõ quy trình hoạt động của hệ thống. 
+- Có sơ đồ use case, ERD và mô tả bảng dữ liệu. 
+
+
+2	Từ 10/11/2025 đến 16/11/2025	Thiết kế giao diện người dùng (User, Admin).
+Tạo các trang: trang chủ, danh mục thú cưng, giỏ hàng, quản lý đơn hàng.
+.	Hoàn thành giao diện tĩnh của hệ thống.
+
+
+
+3	Từ 24/11/2025 đến 30/11/2025	Xây dựng chức năng CRUD cho thú cưng, người dùng, đơn hàng.
+Áp dụng Entity Framework Code First.
+	Các chức năng cơ bản hoạt động, dữ liệu lưu vào CSDL.
+
+
+
+4	Từ 08/12/2025 đến 14/12/2025	Thêm chức năng đặt hàng, giỏ hàng.
+Hoàn thiện xử lý logic và giao diện người dùng.
+	Hệ thống hoạt động ổn định, đặt hàng hoạt động tốt.
+
+
+
+5	
+Từ 22/12/2025
+đến
+28/12/2025
+
+	Đóng gói ứng dụng bằng Docker (ASP.NET + SQL Server). Viết Dockerfile và Docker Compose. Kiểm thử, sửa lỗi. Viết báo cáo, slide.
+	Ứng dụng chạy được trên Docker, giao diện hoàn thiện.
+
+
+
+
+Kết thúc	
+29/12/2025
+	- Có sản phẩm hoàn thành, slide báo cáo thuyết trình	Sản phẩm và báo cáo hoàn chỉnh.
+
+Xác nhận của GVHD	Ngày …… tháng …… năm 2025
+		Sinh viên thực hiện
+
+
+
+
+
